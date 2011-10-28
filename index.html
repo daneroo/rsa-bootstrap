@@ -1,0 +1,106 @@
+<html>
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<title>Javascript RSA - Login Test</title>
+<script type="text/javascript" src="js/hex.js"></script>
+<script type="text/javascript" src="js/base64.js"></script>
+<script type="text/javascript" src="js/asn1.js"></script>
+<!-- <script type="text/javascript" src="js/jsbn.js"></script>
+<script type="text/javascript" src="js/jsbn2.js"></script>
+<script type="text/javascript" src="js/rsa.js"></script>
+<script type="text/javascript" src="js/rsa2.js"></script>
+<script type="text/javascript" src="js/sha1.js"></script> -->
+<script type="text/javascript">
+
+function asn1decode() {
+    var private_pem = document.getElementById("private_key").value;
+    //console.log("private_pem:",private_pem);
+    console.log("private_pem: ...");
+    decodePEM(private_pem);
+}
+
+var reHex = /^\s*(?:[0-9A-Fa-f][0-9A-Fa-f]\s*)+$/;
+function decodePEM(pem) {
+    try {
+        var der = reHex.test(pem)
+        ? Hex.decode(pem)
+        : Base64.unarmor(pem);
+        decode(der);
+    } catch (e) {
+        console.log(e);
+    }
+    return false;
+}
+
+function decode(der) {
+    try {
+        var asn1 = ASN1.decode(der);
+        console.log(asn1);
+        console.log(asn1.toPrettyString());
+        for (var i=0;i<asn1.sub.length;i++){
+            console.log(asn1.sub[i]);
+            console.log(asn1.sub[i].toPrettyString());
+            console.log(asn1.sub[i].posContent());
+            //console.log(asn1.stream.hexDump(asn1.sub[i].stream.pos,asn1.sub[i].length));
+        }
+        
+    } catch (e) {
+        console.log(e);
+    }
+    return false;
+}
+    
+var $pem = "-----BEGIN PUBLIC KEY-----MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAMYQWDqtLgDKlQvWzacGeBMQpbicd/uoXAvgLNpFZLM7zuYFDhrYncRsl8LIHK0K3f7e1aFmUVgM4LrKU2WFIw0CAwEAAQ==-----END PUBLIC KEY-----";
+var $key = RSA.getPublicKey($pem);
+console.log($key);
+
+function assemble() {
+var password_field = document.getElementById("password");
+var data_field = document.getElementById("data");
+data_field.value=sha1(password_field.value) + (new Date().getTime());
+}
+function encrypt() {
+var login_field = document.getElementById("login");
+var data_field = document.getElementById("data");
+login_field.value=RSA.encrypt(data_field.value, $key);
+}
+</script>
+
+</head>
+
+<body>
+
+<h1>Javascript RSA - Decode</h1>
+
+This test is an example to perform user login using javascript RSA. <br/>
+<ol>
+<li>The user type in E-mail as username and a password.</li>
+<li>The client-side javascript hashes the password using SHA-1.</li>
+<li>The client-side javascript attach a timestamp to the end of the hash.</li>
+<li>The client-side javascript encrypt the whole thing with the RSA public key.</li>
+
+<li>The browser submits the encrypted data.</li>
+</ol>
+
+<strong>For testing purpose, the credential to login is any E-mail with the password "test".</strong><br/><br/>
+
+<form action="login.php" method="post">
+Private Key:<br/>
+<textarea id="private_key" cols="50" rows="10"></textarea><br/>
+<input type="button" onclick="asn1decode()" value="0. ASN1.decode"/><br/>
+
+Email:<br/>
+<input name="email" type="text" size="40"/><br/>
+Password:<br/>
+<input id="password" type="password" size="40"/><br/>
+<input type="button" onclick="assemble()" value="1. Assemble"/><br/>
+<textarea id="data" readonly="readonly" cols="50" rows="2"></textarea><br/>
+<input type="button" onclick="encrypt()" value="2. Encrypt"/><br/>
+
+<textarea id="login" name="login" readonly="readonly" cols="50" rows="10"></textarea><br/>
+
+<input name="submit" type="submit" value="3. Login" size="10"/>
+</form>
+</body>
+
+</html>

@@ -9,7 +9,8 @@
     openssl_public_encrypt($clear_text, $encrypted_data, $public_key);
 
     echo "secret info: ".$clear_text."\n";
-    echo "encrypted version (b64 just for the screen): ".base64_encode($encrypted_data)."\n";
+    echo "encrypted version (base64): ".base64_encode($encrypted_data)."\n";
+    echo "encrypted version (hex): ".bin2hex($encrypted_data)."\n";
 
     echo "\n\n  Transport line \n\n";
     $decrypted_data;
