@@ -25,7 +25,7 @@ Using the keys:
     # encrypt
     openssl rsautl -encrypt -pubin -inkey public-key.pem < clear.txt > encrypted.txt
     # decrypt
-    openssl rsautl -decrypt -inkey private-key.pem < test-encrypted.txt
+    openssl rsautl -decrypt -inkey private-key.pem < encrypted.txt
 
 Examining the keys
 

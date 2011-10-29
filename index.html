@@ -37,22 +37,62 @@ function decode(der) {
         var asn1 = ASN1.decode(der);
         console.log(asn1);
         console.log(asn1.toPrettyString());
+        hexFields=[];
         for (var i=0;i<asn1.sub.length;i++){
-            console.log(asn1.sub[i]);
-            console.log(asn1.sub[i].toPrettyString());
-            console.log(asn1.sub[i].posContent());
-            //console.log(asn1.stream.hexDump(asn1.sub[i].stream.pos,asn1.sub[i].length));
+            var f = asn1.sub[i];
+            //console.log(f);
+            console.log(f.toPrettyString());
+            console.log('header:',f.header,f.stream.hexDump(f.stream.pos,f.stream.pos+f.header));
+            console.log('hex:',fieldAsHex(f));
+            //console.log('hex2:',fieldAsHex2(f));
+            hexFields.push(fieldAsHex(f));
         }
-        
+        for (var i=0;i<hexFields.length;i++){
+            console.log(i,hexFields[i]);
+        }
+        var rsa_private = {
+            unused : hexFields[0],
+            n : hexFields[1],
+            e : hexFields[2],
+            d : hexFields[3],
+            p : hexFields[4],
+            q : hexFields[5],
+            dmp1 : hexFields[6],
+            dmq1 : hexFields[7],
+            coef : hexFields[8]
+        }
+        console.log(rsa_private);
     } catch (e) {
         console.log(e);
     }
     return false;
 }
+
+function fieldAsHex(f){
+    var start=f.stream.pos+f.header;
+    var end=f.stream.pos+f.header+f.length;
+    var enc = f.stream.enc.slice(start,end);
+    var s = "";
+    for (var i = 0; i < enc.length; ++i) {
+        s += f.stream.hexByte(enc[i]);
+    }
+    return s;
+}
+
+// not done see decoder example    
+function fieldAsHex2(f){
+    var start=f.stream.pos+f.header;
+    var end=f.stream.pos+f.header+f.length;
+    var enc = f.stream.enc.slice(start,end);
+    var chars = "";
+    for (var i = 0; i < enc.length; ++i) {
+        chars += String.fromCharCode(enc[i]);
+    }
+    console.log('chars',chars);
+    var h = enc.toString(16);
+    if ((h.length & 1) == 0) return h; else return "0" + h;
+}
     
-var $pem = "-----BEGIN PUBLIC KEY-----MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAMYQWDqtLgDKlQvWzacGeBMQpbicd/uoXAvgLNpFZLM7zuYFDhrYncRsl8LIHK0K3f7e1aFmUVgM4LrKU2WFIw0CAwEAAQ==-----END PUBLIC KEY-----";
-var $key = RSA.getPublicKey($pem);
-console.log($key);
 
 function assemble() {
 var password_field = document.getElementById("password");
