@@ -1,7 +1,7 @@
 <html>
 <head>
 <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
-<title>Javascript RSA - Login Test</title>
+<title>Javascript RSA - Browser Decoding Test</title>
 <script type="text/javascript" src="js/hex.js"></script>
 <script type="text/javascript" src="js/base64.js"></script>
 <script type="text/javascript" src="js/asn1.js"></script>
@@ -120,16 +120,14 @@ function decrypt() {
 
 This example demonstrates browser decoding <br/>
 
-<form action="login.php" method="post">
+<form action="#" method="">
     Private Key:<br/>
     <textarea id="private_key" cols="50" rows="7"></textarea><br/>
     <!-- <input type="button" onclick="asn1decode()" value="0. ASN1.decode"/><br/> -->
     Encrypted message:<br/>
     <textarea id="encrypted_message" cols="50" rows="7"></textarea><br/>
     <input type="button" onclick="decrypt()" value="1. RSA.decrypt"/><br/>
-
     <textarea id="clear_text" name="clear_text" readonly="readonly" cols="50" rows="10"></textarea><br/>
-
 
 </form>
 </body>
