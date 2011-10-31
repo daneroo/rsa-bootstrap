@@ -5,27 +5,27 @@
 <script type="text/javascript" src="js/hex.js"></script>
 <script type="text/javascript" src="js/base64.js"></script>
 <script type="text/javascript" src="js/asn1.js"></script>
-<!-- <script type="text/javascript" src="js/jsbn.js"></script>
+<script type="text/javascript" src="js/jsbn.js"></script>
 <script type="text/javascript" src="js/jsbn2.js"></script>
 <script type="text/javascript" src="js/rsa.js"></script>
 <script type="text/javascript" src="js/rsa2.js"></script>
-<script type="text/javascript" src="js/sha1.js"></script> -->
+<script type="text/javascript" src="js/sha1.js"></script>
 <script type="text/javascript">
 
 function asn1decode() {
     var private_pem = document.getElementById("private_key").value;
     //console.log("private_pem:",private_pem);
     console.log("private_pem: ...");
-    decodePEM(private_pem);
+    return decodePEM(private_pem);
 }
 
-var reHex = /^\s*(?:[0-9A-Fa-f][0-9A-Fa-f]\s*)+$/;
 function decodePEM(pem) {
+    var reHex = /^\s*(?:[0-9A-Fa-f][0-9A-Fa-f]\s*)+$/;
     try {
         var der = reHex.test(pem)
         ? Hex.decode(pem)
         : Base64.unarmor(pem);
-        decode(der);
+        return decode(der);
     } catch (e) {
         console.log(e);
     }
@@ -62,6 +62,7 @@ function decode(der) {
             coef : hexFields[8]
         }
         console.log(rsa_private);
+        return rsa_private;
     } catch (e) {
         console.log(e);
     }
@@ -79,30 +80,32 @@ function fieldAsHex(f){
     return s;
 }
 
-// not done see decoder example    
-function fieldAsHex2(f){
-    var start=f.stream.pos+f.header;
-    var end=f.stream.pos+f.header+f.length;
-    var enc = f.stream.enc.slice(start,end);
-    var chars = "";
-    for (var i = 0; i < enc.length; ++i) {
-        chars += String.fromCharCode(enc[i]);
-    }
-    console.log('chars',chars);
-    var h = enc.toString(16);
-    if ((h.length & 1) == 0) return h; else return "0" + h;
-}
-    
+function decrypt() {
+  var rsa_private = asn1decode();
+  console.log('rsa_private',rsa_private);
+  var encrypted_message = document.getElementById("encrypted_message").value;
+  var clear_textElt = document.getElementById("clear_text");
+  var dr=rsa_private;
+  var before = new Date();
 
-function assemble() {
-var password_field = document.getElementById("password");
-var data_field = document.getElementById("data");
-data_field.value=sha1(password_field.value) + (new Date().getTime());
-}
-function encrypt() {
-var login_field = document.getElementById("login");
-var data_field = document.getElementById("data");
-login_field.value=RSA.encrypt(data_field.value, $key);
+  var rsa = new RSAKey();
+  rsa.setPrivateEx(dr.n, dr.e, dr.d, dr.p, dr.q, dr.dmp1, dr.dmq1, dr.coeff);
+  console.log(rsa);
+  if(encrypted_message.length == 0) {
+    console.log("No Ciphertext - encrypt something first");
+    return;
+  }
+  console.log('cypher text',encrypted_message);
+  var res = rsa.decrypt(encrypted_message);
+  var after = new Date();
+  if(res == null) {
+    clear_textElt.value = "*** Invalid Ciphertext ***";
+    console.log("Decryption failed");
+  }
+  else {
+    clear_textElt.value = res;
+    console.log("Decryption Time: " + (after - before) + "ms");
+  }
 }
 </script>
 
@@ -110,36 +113,21 @@ login_field.value=RSA.encrypt(data_field.value, $key);
 
 <body>
 
-<h1>Javascript RSA - Decode</h1>
+<h4>Javascript RSA - Decode</h4>
 
-This test is an example to perform user login using javascript RSA. <br/>
-<ol>
-<li>The user type in E-mail as username and a password.</li>
-<li>The client-side javascript hashes the password using SHA-1.</li>
-<li>The client-side javascript attach a timestamp to the end of the hash.</li>
-<li>The client-side javascript encrypt the whole thing with the RSA public key.</li>
-
-<li>The browser submits the encrypted data.</li>
-</ol>
-
-<strong>For testing purpose, the credential to login is any E-mail with the password "test".</strong><br/><br/>
+This example demonstrates browser decoding <br/>
 
 <form action="login.php" method="post">
-Private Key:<br/>
-<textarea id="private_key" cols="50" rows="10"></textarea><br/>
-<input type="button" onclick="asn1decode()" value="0. ASN1.decode"/><br/>
+    Private Key:<br/>
+    <textarea id="private_key" cols="50" rows="7"></textarea><br/>
+    <input type="button" onclick="asn1decode()" value="0. ASN1.decode"/><br/>
+    Encrypted message:<br/>
+    <textarea id="encrypted_message" cols="50" rows="7"></textarea><br/>
+    <input type="button" onclick="decrypt()" value="1. RSA.decrypt"/><br/>
 
-Email:<br/>
-<input name="email" type="text" size="40"/><br/>
-Password:<br/>
-<input id="password" type="password" size="40"/><br/>
-<input type="button" onclick="assemble()" value="1. Assemble"/><br/>
-<textarea id="data" readonly="readonly" cols="50" rows="2"></textarea><br/>
-<input type="button" onclick="encrypt()" value="2. Encrypt"/><br/>
+    <textarea id="clear_text" name="clear_text" readonly="readonly" cols="50" rows="10"></textarea><br/>
 
-<textarea id="login" name="login" readonly="readonly" cols="50" rows="10"></textarea><br/>
 
-<input name="submit" type="submit" value="3. Login" size="10"/>
 </form>
 </body>
 
