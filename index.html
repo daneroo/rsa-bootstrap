@@ -5,11 +5,13 @@
 <script type="text/javascript" src="js/hex.js"></script>
 <script type="text/javascript" src="js/base64.js"></script>
 <script type="text/javascript" src="js/asn1.js"></script>
+
 <script type="text/javascript" src="js/jsbn.js"></script>
 <script type="text/javascript" src="js/jsbn2.js"></script>
 <script type="text/javascript" src="js/rsa.js"></script>
 <script type="text/javascript" src="js/rsa2.js"></script>
 <script type="text/javascript" src="js/sha1.js"></script>
+
 <script type="text/javascript">
 
 function asn1decode() {
@@ -59,7 +61,7 @@ function decode(der) {
             q : hexFields[5],
             dmp1 : hexFields[6],
             dmq1 : hexFields[7],
-            coef : hexFields[8]
+            coeff : hexFields[8]
         }
         console.log(rsa_private);
         return rsa_private;
@@ -90,7 +92,7 @@ function decrypt() {
 
   var rsa = new RSAKey();
   rsa.setPrivateEx(dr.n, dr.e, dr.d, dr.p, dr.q, dr.dmp1, dr.dmq1, dr.coeff);
-  console.log(rsa);
+  console.log('rsa',rsa);
   if(encrypted_message.length == 0) {
     console.log("No Ciphertext - encrypt something first");
     return;
@@ -98,6 +100,7 @@ function decrypt() {
   console.log('cypher text',encrypted_message);
   var res = rsa.decrypt(encrypted_message);
   var after = new Date();
+  console.log('res',res);
   if(res == null) {
     clear_textElt.value = "*** Invalid Ciphertext ***";
     console.log("Decryption failed");
@@ -120,7 +123,7 @@ This example demonstrates browser decoding <br/>
 <form action="login.php" method="post">
     Private Key:<br/>
     <textarea id="private_key" cols="50" rows="7"></textarea><br/>
-    <input type="button" onclick="asn1decode()" value="0. ASN1.decode"/><br/>
+    <!-- <input type="button" onclick="asn1decode()" value="0. ASN1.decode"/><br/> -->
     Encrypted message:<br/>
     <textarea id="encrypted_message" cols="50" rows="7"></textarea><br/>
     <input type="button" onclick="decrypt()" value="1. RSA.decrypt"/><br/>

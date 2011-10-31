@@ -4,7 +4,7 @@
 
     $public_key = openssl_pkey_get_public('file://public-key.pem');
     
-    $clear_text = "My super secret information";
+    $clear_text = "My super secret information ".date('c');
     $encrypted_data;
     openssl_public_encrypt($clear_text, $encrypted_data, $public_key);
 
