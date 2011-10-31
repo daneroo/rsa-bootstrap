@@ -38,3 +38,10 @@ if you generated the keys as above: `private-key.pem`,`private-key.pem`, you can
     php openssl-example.php
 
 ## Javascript
+
+With the `index.html` file you can decode encrypted text browser-side:
+
+    open index.html
+
+Paste the contents of `private-key.pem` into Private key, if you followed example above.
+Then paste the output of `php openssl-example.php`,  `encrypted version (hex)` into encrypted text area, and click `RSA decrypt`.
